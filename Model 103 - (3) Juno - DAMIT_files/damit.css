@@ -1,0 +1,161 @@
+/* DAMIT CSS customisations */
+
+/* Typography */
+
+html {
+	font-size: 14px;
+}
+
+h1 {
+	margin-bottom: 1.5rem;
+}
+
+/* Layout */
+body {
+	padding-top: 3.57rem; /* Compensate for the fixed navbar. */
+}
+
+/* Page anchors */
+.damit-anchor {
+	display: block;
+	height: 3.57rem; /* Compensate for the fixed navbar. */
+	margin-top: -3.57rem;
+}
+
+/* Tables */
+
+.damit-table thead th {
+	border-top: none;
+}
+.damit-table-compact td,
+.damit-table-compact th {
+	padding-top: 1px;
+	padding-bottom: 1px;
+}
+
+.damit-table-asteroids-browse tbody {
+	border-top: 0 !important;
+}
+.damit-table-asteroids-browse tbody:after {
+	content: "";
+	display: block;
+	height: 0.7rem;
+}
+.damit-table-asteroids-browse td,
+.damit-table-index td {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	max-width: 20rem;
+}
+.damit-asteroid-row {
+	background-color: #efefef;
+}
+.damit-asteroid-row td,
+.damit-asteroid-row th {
+	padding-top: 0;
+	padding-bottom: 0;
+	border-bottom: 1px solid #dee2e6 !important; /* Bootstrap: .border-bottom */
+}
+.damit-model-row td {
+	border: 0;
+}
+
+/* Cursor */
+
+[role="link"] {
+	cursor: pointer;
+}
+
+.damit-cursor-help {
+	cursor: help;
+}
+
+/* Links */
+
+a.asc,
+a.desc {
+	font-weight: bold;
+}
+a.asc:after {
+	content: " (asc)";
+}
+a.desc:after {
+	content: " (desc)";
+}
+th a.asc:after {
+	content: " ↓";
+}
+th a.desc:after {
+	content: " ↑";
+}
+
+a.external:after {
+	font-family: "Font Awesome 5 Free";
+	font-style: normal;
+	font-weight: 900;
+	font-size: 70%;
+	vertical-align: text-bottom;
+	content: " \f35d";
+}
+
+/* Spinners */
+
+.spinner {
+	text-shadow: 0 0 1px white, 0 0 3px white;
+}
+.spinner-large {
+	font-size: 1.33em;
+}
+.spinner-larger {
+	font-size: 2em;
+}
+.spinner-huge {
+	font-size: 3em;
+}
+.spinner-centered {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+/* Popovers */
+.popover {
+	border-color: gray;
+}
+
+/* Math */
+
+.hide-when-math-rendering {
+	visibility: hidden;
+}
+
+.damit-math {
+	font-family: "Math", serif;
+	/*font-size: 117%;*/
+}
+
+@font-face {
+	font-family: "Math";
+	font-style: normal;
+	font-weight: normal;
+	src: url("../fonts/MathJax_Main-Regular.woff") format("woff");
+}
+@font-face {
+	font-family: "Math";
+	font-style: italic;
+	font-weight: normal;
+	src: url("../fonts/MathJax_Math-Italic.woff") format("woff");
+}
+@font-face {
+	font-family: "Math";
+	font-style: normal;
+	font-weight: bold;
+	src: url("../fonts/MathJax_Main-Bold.woff") format("woff");
+}
+@font-face {
+	font-family: "Math";
+	font-style: italic;
+	font-weight: bold;
+	src: url("../fonts/MathJax_Math-BoldItalic.woff") format("woff");
+}
