@@ -325,3 +325,54 @@ drawAsteroidFromMultipleAngles(
 	$V([1, 1, 1]), // light location (directional)
 	$V([0, 0, 1])  // observer location
 );
+
+function drawAsteroidFromMultipleAngles(canvas, vertexes, faces, ambientLight, lightLocation, observerLocation) {
+	const ctx = canvas.getContext("2d");
+	const views = 8; // number of angles
+	const spacing = 10;
+	const imageSize = 150; // each image will be imageSize x imageSize
+
+	canvas.width = (imageSize + spacing) * views - spacing;
+	canvas.height = imageSize;
+
+	ctx.fillStyle = "#000";
+	ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+	for (let i = 0; i < views; i++) {
+		// Angle around Y-axis
+		const angle = (2 * Math.PI * i) / views;
+		const rotations = [0, angle, 0, 0]; // [Z, Y, Z, X]
+
+		const rotated = Model.rotate_vectors(vertexes, rotations);
+		const faceNormals = Model.get_face_normals(rotated, faces);
+		const vertexNormals = Model.get_vertex_normals(rotated, faces);
+
+		// Create an offscreen canvas for each image
+		const tempCanvas = document.createElement("canvas");
+		tempCanvas.width = imageSize;
+		tempCanvas.height = imageSize;
+
+		Model.draw(
+			tempCanvas,
+			rotated,
+			faces,
+			ambientLight,
+			lightLocation,
+			observerLocation,
+			faceNormals,
+			vertexNormals
+		);
+
+		// Draw onto the main canvas
+		ctx.drawImage(tempCanvas, i * (imageSize + spacing), 0);
+	}
+}
+
+drawAsteroidFromMultipleAngles(
+	document.getElementById("asteroidCanvas"),
+	vertexes,
+	faces,
+	0.3, // ambient light
+	$V([1, 1, 1]), // light location (directional)
+	$V([0, 0, 1])  // observer location
+);
