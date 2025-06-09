@@ -901,19 +901,23 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		o = [o[0], o[1], o[2]];
 
 		// helper: dot product of two 3‐vectors
-		const dot = (u, v) => u[0]*v[0] + u[1]*v[1] + u[2]*v[2];
-
+		// const dot = (u, v) => u[0]*v[0] + u[1]*v[1] + u[2]*v[2];
+		// helper: dot product u ⋅ v
+		function dot(u, v) {
+			let tmp = u[0]*v[0] + u[1]*v[1] + u[2]*v[2];
+			return tmp;
+		}
 		// phase angle α between s and o
 		let alpha = Math.acos(dot(s, o));
 
 		// compute raw cosines and clamp negatives to zero
-		let mu_i = face_normals.map(n => Math.max(dot(s, n), 0));
-		let mu_e = face_normals.map(n => Math.max(dot(o, n), 0));
+		let mu_i = face_normals.map(normals => Math.max(dot(s, normals.elements), 0));
+		let mu_e = face_normals.map(normals => Math.max(dot(o, normals.elements), 0));
 
 		// initialize shadow/visibility masks to zero arrays
 		const N = faces.length;
-		let nu_i = new Array(N).fill(0);
-		let nu_e = new Array(N).fill(0);
+		let nu_i = new Array(N).fill(1);
+		let nu_e = new Array(N).fill(1);
 
 		// solar constant [W/m²]
 		const phi_s = 1361;
@@ -938,10 +942,13 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 
 		// total = sum(φ_e)
 		let total = phi_e.reduce((sum, val) => sum + val, 0);
+
+		return total;
 	}
 
 	function getLightCurve(n = 100) {
-		const total = [];
+		var gammas = [];
+		var fluxes = [];
 
 		// initial light & view vectors
 		const up    = [0, 0, 1];
@@ -959,26 +966,29 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 			const s_ = [x_, y_, z_];
 
 			// compute cosines & shadow masks based on s_ and up
-			getCosinesAndFluxes(s_, up);
+			let flux = getCosinesAndFluxes(s_, up);
 
 			// push a [gamma, flux] pair
-			total.push([gamma, total]);
+			gammas.push(gamma);
+			fluxes.push(flux);
 		}
 
 		// now normalize columns just like before
-		const col0 = total.map(r => r[0]);
-		const col1 = total.map(r => r[1]);
-		const min0 = Math.min(...col0), max0 = Math.max(...col0);
-		const min1 = Math.min(...col1), max1 = Math.max(...col1);
+		const min0 = Math.min(...gammas), max0 = Math.max(...gammas);
+		const min1 = Math.min(...fluxes), max1 = Math.max(...fluxes);
 		const range0 = max0 - min0, range1 = max1 - min1;
 
-		total.forEach(r => {
-			r[0] = (r[0] - min0) / range0;
-			r[1] = -(r[1] - min1) / range1;
+		gammas.forEach(r => {
+			r = (r - min0) / range0;
+		});
+		fluxes.forEach(r => {
+			r = -(r - min1) / range1;
+
 		});
 
-		console.log(total);
-		return total;
+		console.log(gammas);
+		console.log(fluxes);
+		return gammas, fluxes;
 	}
 
 	/** Update the whole sky projection panel. */
