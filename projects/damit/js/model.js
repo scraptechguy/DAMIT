@@ -274,6 +274,7 @@ Model.draw = function(
 
 	return { errors };
 };
+/*
 
 function drawAsteroidFromMultipleAngles(canvas, vertexes, faces, ambientLight, lightLocation, observerLocation) {
 	const ctx = canvas.getContext("2d");
