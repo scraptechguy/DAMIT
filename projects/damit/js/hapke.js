@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 const { PI, sqrt, sin, cos, tan, log, exp, acos, pow, min, max } = Math;
 const deg = PI / 180.0;
 
