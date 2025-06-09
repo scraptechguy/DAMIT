@@ -1136,7 +1136,6 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		loader_sun.style.display = "none";
 		loader_amb.style.display = "none";
 		getLightCurve();
-		drawLightCurve();
 	}
 
 	/* Handle the ajax response with ephemerides. */
@@ -1306,6 +1305,19 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 					</div>
 				</div>
 
+				<div class="form-group mb-3">
+					<button type="reset" class="btn btn-secondary mr-2" onclick="onGenerateLightCurve()">Generate Light Curve</button>
+				</div>
+				<script>
+					function onGenerateLightCurve() {
+						// un-hide the column
+						const fluxCol = document.getElementById('fluxCol');
+						fluxCol.classList.remove('d-none');
+						// actually draw into the canvas
+						drawLightCurve();
+					}
+				</script>
+
 				<div class="form-group mb-3 mr-2">
 					<button type="reset" class="btn btn-secondary mr-2" onclick="document.getElementById('nowButton').classList.remove('active'); initFields(); updateSkyProj(); return false;">Reset</button>
 					<button type="submit" class="btn btn-primary" onclick="document.getElementById('nowButton').classList.remove('active'); updateSkyProj(); return false;">Redraw</button>
@@ -1321,7 +1333,8 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 					<h5>Illuminated by artificial light</h5>
 					<canvas id="canvas_amb" class="mb-2" width="300" height="300"></canvas>
 					<span id="loader_amb" class="spinner spinner-centered spinner-huge"><span class=""></span> <i class="fas fa-spinner fa-pulse"></i><span class=""></span></span>				</div>
-				<div class="col-auto">
+				<div class="col-auto d-none" id="fluxCol">
+					<h5>Light Curve</h5>
 					<canvas id="fluxChart" width="400" height="300"></canvas>
 				</div>
 			</div>
