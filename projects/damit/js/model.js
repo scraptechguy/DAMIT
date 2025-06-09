@@ -316,7 +316,7 @@ function drawAsteroidFromMultipleAngles(canvas, vertexes, faces, ambientLight, l
 		ctx.drawImage(tempCanvas, i * (imageSize + spacing), 0);
 	}
 }
-
+/*
 drawAsteroidFromMultipleAngles(
 	document.getElementById("asteroidCanvas"),
 	vertexes,
@@ -376,3 +376,4 @@ drawAsteroidFromMultipleAngles(
 	$V([1, 1, 1]), // light location (directional)
 	$V([0, 0, 1])  // observer location
 );
+*/
