@@ -907,12 +907,22 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 			let tmp = u[0]*v[0] + u[1]*v[1] + u[2]*v[2];
 			return tmp;
 		}
+
+		// normalise vectors 
+		let absS = Math.sqrt(dot(s, s));
+		s = [s[0] / absS, s[1] / absS, s[2] / absS];
+		let absO = Math.sqrt(dot(o, o));
+		o = [o[0] / absO, o[1] / absO, o[2] / absO];
+
 		// phase angle α between s and o
 		let alpha = Math.acos(dot(s, o));
+		console.log("alpha: " + alpha)
 
 		// compute raw cosines and clamp negatives to zero
 		let mu_i = face_normals.map(normals => Math.max(dot(s, normals.elements), 0));
 		let mu_e = face_normals.map(normals => Math.max(dot(o, normals.elements), 0));
+		console.log("mu_i: " + mu_i)
+		console.log("mu_e: " + mu_e)
 
 		// initialize shadow/visibility masks to zero arrays
 		const N = faces.length;
@@ -936,6 +946,7 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 
 		// I = f * φ_i
 		let I = f.map((fi, i) => fi * phi_i[i]);
+		console.log("I: " + I)
 
 		// φ_e = I * μ_e * ν_e
 		let phi_e = I.map((Ii, i) => Ii * mu_e[i] * nu_e[i]);
@@ -946,27 +957,31 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		return total;
 	}
 
-	function getLightCurve(n = 100) {
+	function getLightCurve(n = 1) {
 		var gammas = [];
 		var fluxes = [];
 
 		// initial light & view vectors
-		const up    = [0, 0, 1];
-		const start = [1, 0, 0];
+		const o = [0, 1, 0];
+		const s = [1, 0, 0];
 
 		for (let i = 0; i <= n; i++) {
 			// evenly sample gamma from 0 to 2π
 			const gamma = 2 * Math.PI * i / n;
 
-			// rotate start about Z by gamma
-			const x_ =  start[0] * Math.cos(gamma) + start[1] * Math.sin(gamma);
-			const y_ = -start[0] * Math.sin(gamma) + start[1] * Math.cos(gamma);
-			const z_ =  start[2];  // still 0
-
+			// rotate s about Z by gamma
+			var x_ =  s[0] * Math.cos(gamma) + s[1] * Math.sin(gamma);
+			var y_ = -s[0] * Math.sin(gamma) + s[1] * Math.cos(gamma);
+			var z_ =  s[2];  // still 0
 			const s_ = [x_, y_, z_];
 
+			x_ =  o[0] * Math.cos(gamma) + o[1] * Math.sin(gamma);
+			y_ = -o[0] * Math.sin(gamma) + o[1] * Math.cos(gamma);
+			z_ =  o[2];  // still 0
+			const o_ = [x_, y_, z_];
+
 			// compute cosines & shadow masks based on s_ and up
-			let flux = getCosinesAndFluxes(s_, up);
+			let flux = getCosinesAndFluxes(s_, o_);
 
 			// push a [gamma, flux] pair
 			gammas.push(gamma);
@@ -1013,6 +1028,10 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		// draw axes
 		ctx.beginPath();
 		ctx.moveTo(m, m);
+		ctx.fillText(minY, w/2, h - 40);
+		ctx.fillText(maxY, w/2, h - 50);
+		ctx.fillText(minX, w/2, h - 60);
+		ctx.fillText(maxX, w/2, h - 70);
 		ctx.lineTo(m, h - m);
 		ctx.lineTo(w - m, h - m);
 		ctx.stroke();
