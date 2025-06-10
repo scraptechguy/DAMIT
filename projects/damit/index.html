@@ -448,7 +448,9 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 	 */
 	function getSurfVol(vertexes, faces) {
 		var surface = 0;
+		var surfaces = [];
 		var volume = 0;
+
 		for (var i = 0; i < faces.length; i++) {
 			var face = faces[i];
 			var d = vertexes[face[0]];
@@ -458,12 +460,14 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 			var h = f.subtract(d);
 			var n = g.cross(h);
 			var ds = n.modulus() / 2;
+			surfaces.push(ds)
 			var dv = f.dot(n) / 6;
 			surface += ds;
 			volume += dv;
 		}
 		return {
 			surface: surface,
+			surfaces: surfaces,
 			volume: volume,
 		}
 	}
@@ -895,7 +899,7 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 	 * @param {number[]} [s=[1,0,0]] – sun‐direction vector
 	 * @param {number[]} [o=[0,0,1]] – observer‐direction vector
 	 */
-	function getCosinesAndFluxes(s = [1, 0, 0], o = [0, 0, 1]) {
+	function getCosinesAndFluxes(s = [1, 0, 0], o = [0, 0, 1], surfaces) {
 		// copy inputs
 		s = [s[0], s[1], s[2]];
 		o = [o[0], o[1], o[2]];
@@ -933,33 +937,33 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		const phi_s = 1361;
 
 		// φ_i = φ_s * μ_i * ν_i  (element-wise)
-		let phi_i = mu_i.map((mi, i) => phi_s * mi * nu_i[i]);
+		let phi_i = mu_i.map((val, i) => phi_s * val * nu_i[i]);
 
 		// Lambertian term
 		const A_w = 0.23;
 		let f_L = A_w / (4 * Math.PI);
 
 		// f[i] = f_func(f_L, μ_i[i], μ_e[i], α)
-		let f = mu_e.map((me, i) =>
-			f_lambert(f_L, mu_i[i], me, alpha)
-		);
+		let f = mu_e.map((val, i) => f_lambert(f_L, mu_i[i], val, alpha));
 
 		// I = f * φ_i
-		let I = f.map((fi, i) => fi * phi_i[i]);
+		let I = f.map((val, i) => val * phi_i[i]);
 		console.log("I: " + I)
 
 		// φ_e = I * μ_e * ν_e
-		let phi_e = I.map((Ii, i) => Ii * mu_e[i] * nu_e[i]);
+		let phi_e = I.map((val, i) => val * mu_e[i] * nu_e[i]);
 
 		// total = sum(φ_e)
-		let total = phi_e.reduce((sum, val) => sum + val, 0);
+		let phi_eSurf = phi_e.map((val, i) => val * surfaces[i]);
+		let total = phi_eSurf.reduce((sum, val) => sum + val, 0);
 
 		return total;
 	}
 
-	function getLightCurve(n = 1) {
+	function getLightCurve(n = 100) {
 		var gammas = [];
 		var fluxes = [];
+		var sv = getSurfVol(vertexes, faces);
 
 		// initial light & view vectors
 		const o = [0, 1, 0];
@@ -981,7 +985,7 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 			const o_ = [x_, y_, z_];
 
 			// compute cosines & shadow masks based on s_ and up
-			let flux = getCosinesAndFluxes(s_, o_);
+			let flux = getCosinesAndFluxes(s_, o_, sv.surfaces);
 
 			// push a [gamma, flux] pair
 			gammas.push(gamma);
