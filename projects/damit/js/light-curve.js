@@ -283,7 +283,7 @@ function drawLightCurve(n = 100, s = [1, 0, 0], o = [0, 0, 1]) {
     s = [s[0], s[1], s[2]];
     o = [o[0], o[1], o[2]];
 
-    const curveData = getLightCurve(100, s, o);
+    const curveData = getLightCurve(n, s, o);
     const rawGammas = curveData[0];
     const rawFluxes = curveData[1];
 
@@ -399,4 +399,52 @@ function drawLightCurve(n = 100, s = [1, 0, 0], o = [0, 0, 1]) {
     .attr("stroke", "#FF0000")
     .attr("stroke-width", 1.5)
     .attr("d", line);
+}
+
+function saveLightCurveAsSvg() {
+    const svg = document.getElementById('fluxChart');
+    const serializer = new XMLSerializer();
+    const source = serializer.serializeToString(svg);
+
+    // add name‐spaces
+    const svgBlob = new Blob([`<?xml version="1.0" standalone="no"?>\n${source}`], {
+        type: 'image/svg+xml;charset=utf-8'
+    });
+    const url = URL.createObjectURL(svgBlob);
+
+    // create a temporary download link and click it
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'light_curve.svg';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+
+    // cleanup
+    URL.revokeObjectURL(url);
+}
+
+function saveLightCurveAsTxt() {
+    // 1) pull out your data
+    const gammas = getLightCurve()[0];
+    const fluxes = getLightCurve()[1];
+    const pairs = gammas.map((g,i) => [g, fluxes[i]]);
+    const text = pairs
+    .map(([g, f]) => `${g} ${f}`)
+    .join('\n');
+  
+    // 2) turn it into a Blob
+    const blob = new Blob([text], { type: 'text/plain' });
+  
+    // 3) create an object URL, and a temporary <a> to “click”
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href        = url;
+    a.download    = 'light_curve.txt';   // the suggested filename
+    document.body.appendChild(a);
+    a.click();
+  
+    // 4) clean up
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }

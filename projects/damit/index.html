@@ -1092,7 +1092,7 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 						<tr>
 							<th class="text-secondary font-weight-normal" scope="row">Solar phase angle (°)</th>
 							<td id="solar_phase_angle_deg" class="w-100 pl-3">n/a</td>
-						</tr>
+						</tr>	
 					</tbody>
 				</table>
 			</div>
@@ -1126,6 +1126,11 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 						<a href="stored_files/open/21/shape.png" class="">shape.png</a>											</li>
 														<li class="list-inline-item">
 						<a href="stored_files/open/22/shape.txt" class="">shape.txt</a>											</li>
+														<li class="list-inline-item">
+						<button id="saveLightCurveAsTxt" type="button" class="btn btn-link p-0">light_curve.txt</button>
+						<script>
+							document.getElementById('saveLightCurveAsTxt').addEventListener('click', saveLightCurveAsTxt);
+						</script>																								</li>
 							</ul>
 		
 					<ul class="list-inline">
@@ -1134,6 +1139,11 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 						<a href="generated_files/open/AsteroidModel/103/spin.txt">spin.txt</a>					</li>
 									<li class="list-inline-item">
 						<a href="generated_files/open/AsteroidModel/103/shape.obj">shape.obj</a>					</li>
+									<li class="list-inline-item">
+						<button id="downloadGraph" type="button" class="btn btn-link p-0">light_curve.svg</button>
+						<script>
+							document.getElementById('downloadGraph').addEventListener('click', saveLightCurveAsSvg);
+						</script>					</li>
 							</ul>
 		
 	</div>
