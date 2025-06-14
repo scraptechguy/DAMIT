@@ -300,8 +300,13 @@ function drawLightCurve(n = 100, s = [1, 0, 0], o = [0, 0, 1]) {
     // zip into objects
     const data = gammas.map((g, i) => ({ phase: g, flux: fluxes[i] }));
 
-    // set up your SVG
-    const svg = d3.select("#fluxChart");
+    // grab the same image-size px that you use for the asteroid canvases:
+    const imgSize = +document.getElementById('image_size_px_input').value;
+
+    // resize the SVG to match:
+    const svg = d3.select('#fluxChart').attr('width',  imgSize * 1.333333).attr('height', imgSize);
+
+    // set up SVG
     const width  = +svg.attr("width");
     const height = +svg.attr("height");
     const margin = { top: 20, right: 20, bottom: 40, left: 50 };
