@@ -14,6 +14,8 @@
 			gtag('config', 'UA-10342752-2');
 		</script>
 	
+	<script src="https://d3js.org/d3.v6.min.js"></script>
+	
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<link href="favicon.png" type="image/x-icon" rel="icon"/><link href="favicon.png" type="image/x-icon" rel="shortcut icon"/><link rel="stylesheet" type="text/css" href="css/bootstrap.min.css"/><link rel="stylesheet" type="text/css" href="css/fontawesome.all.min.css"/><link rel="stylesheet" type="text/css" href="css/select2.min.css"/><link rel="stylesheet" type="text/css" href="css/cake.generic.css"/><link rel="stylesheet" type="text/css" href="css/deprecated.css"/><link rel="stylesheet" type="text/css" href="css/damit.css"/><script type="text/javascript" src="js/jquery.min.js"></script><script type="text/javascript" src="js/damit-jquery.js"></script><script type="text/javascript" src="js/select2.min.js"></script> <title>Model 103 - (3) Juno - DAMIT</title>
 </head>
@@ -960,14 +962,14 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		return total;
 	}
 
-	function getLightCurve(n = 100) {
+	function getLightCurve(n = 100, s = [1, 0, 0], o = [0, 0, 1]) {
 		var gammas = [];
 		var fluxes = [];
 		var sv = getSurfVol(vertexes, faces);
 
 		// initial light & view vectors
-		const o = [0, 1, 0];
-		const s = [1, 0, 0];
+		s = [s[0], s[1], s[2]];
+		o = [o[0], o[1], o[2]];
 
 		for (let i = 0; i <= n; i++) {
 			// evenly sample gamma from 0 to 2π
@@ -1011,55 +1013,73 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 	}
 
 	function drawLightCurve() {
-		const [ gammas, fluxes ] = getLightCurve();
-		const canvas = document.getElementById('fluxChart');
-		const ctx    = canvas.getContext('2d');
-		const w      = canvas.width;
-		const h      = canvas.height;
-		ctx.clearRect(0, 0, w, h);
+		// 1) get back the pair of arrays
+		const curveData = getLightCurve();
+		const gammas = curveData[0];
+		const fluxes = curveData[1];
 
-		// margins
-		const m = 30;
+		// 2) zip into objects
+		const data = gammas.map((g, i) => ({ phase: g, flux: fluxes[i] }));
 
-		// data ranges
-		const minX = Math.min(...gammas), maxX = Math.max(...gammas);
-		const minY = Math.min(...fluxes), maxY = Math.max(...fluxes);
+		// 3) set up your SVG
+		const svg = d3.select("#fluxChart");
+		const width  = +svg.attr("width");
+		const height = +svg.attr("height");
+		const margin = { top: 20, right: 20, bottom: 40, left: 50 };
+		const innerW = width  - margin.left - margin.right;
+		const innerH = height - margin.top  - margin.bottom;
 
-		// map data → pixel
-		const toX = x => m + (x - minX) / (maxX - minX) * (w - 2*m);
-		const toY = y => h - m - (y - minY) / (maxY - minY) * (h - 2*m);
+		svg.selectAll("*").remove();
 
-		// draw axes
-		ctx.beginPath();
-		ctx.moveTo(m, m);
-		ctx.fillText(minY, w/2, h - 40);
-		ctx.fillText(maxY, w/2, h - 50);
-		ctx.fillText(minX, w/2, h - 60);
-		ctx.fillText(maxX, w/2, h - 70);
-		ctx.lineTo(m, h - m);
-		ctx.lineTo(w - m, h - m);
-		ctx.stroke();
+		// 4) scales
+		const x = d3.scaleLinear()
+			.domain(d3.extent(data, d => d.phase)).nice()
+			.range([0, innerW]);
 
-		// plot the curve
-		ctx.beginPath();
-		gammas.forEach((g, i) => {
-			const x = toX(g), y = toY(fluxes[i]);
-			i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-		});
-		ctx.stroke();
+		const y = d3.scaleLinear()
+			.domain(d3.extent(data, d => d.flux)).nice()
+			.range([innerH, 0]);
 
-		// axis labels
-		ctx.font = '12px sans-serif';
-		ctx.textAlign = 'center';
-		ctx.fillText('Phase', w/2, h - 5);
+		// 5) container group
+		const g = svg.append("g")
+			.attr("transform", `translate(${margin.left},${margin.top})`);
 
-		ctx.save();
-		ctx.translate(15, h/2);
-		ctx.rotate(-Math.PI/2);
-		ctx.textAlign = 'center';
-		ctx.fillText('Flux', 0, 0);
-		ctx.restore();
+		// 6) axes
+		g.append("g")
+			.attr("transform", `translate(0,${innerH})`)
+			.call(d3.axisBottom(x).ticks(6))
+			.append("text")
+			.attr("x", innerW / 2)
+			.attr("y", 30)
+			.attr("fill", "#000")
+			.attr("text-anchor", "middle")
+			.text("Phase");
+
+		g.append("g")
+			.call(d3.axisLeft(y).ticks(6))
+			.append("text")
+			.attr("transform", "rotate(-90)")
+			.attr("x", -innerH / 2)
+			.attr("y", -40)
+			.attr("fill", "#000")
+			.attr("text-anchor", "middle")
+			.text("Flux");
+
+		// 7) line generator
+		const line = d3.line()
+			.x(d => x(d.phase))
+			.y(d => y(d.flux))
+			.curve(d3.curveMonotoneX);
+
+		// 8) draw path
+		g.append("path")
+			.datum(data)
+			.attr("fill", "none")
+			.attr("stroke", "#007acc")
+			.attr("stroke-width", 1.5)
+			.attr("d", line);
 	}
+
 
 	/** Update the whole sky projection panel. */
 	function updateSkyProj() {
@@ -1158,7 +1178,6 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		handleEphemsResponse(new_ephems);
 		loader_sun.style.display = "none";
 		loader_amb.style.display = "none";
-		getLightCurve();
 	}
 
 	/* Handle the ajax response with ephemerides. */
@@ -1182,6 +1201,8 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		// Draw on the canvases.
 		draw_model(canvas_sun, earth_location, sun_location, 0, shading);
 		draw_model(canvas_amb, earth_location, earth_location, ambient, shading);
+		getLightCurve(100, earth_location, sun_location);
+		drawLightCurve(earth_location, sun_location);
 		updateSkyProjDetails();
 	}
 
@@ -1328,19 +1349,6 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 					</div>
 				</div>
 
-				<div class="form-group mb-3">
-					<button type="reset" class="btn btn-secondary mr-2" onclick="onGenerateLightCurve()">Generate Light Curve</button>
-				</div>
-				<script>
-					function onGenerateLightCurve() {
-						// un-hide the column
-						const fluxCol = document.getElementById('fluxCol');
-						fluxCol.classList.remove('d-none');
-						// actually draw into the canvas
-						drawLightCurve();
-					}
-				</script>
-
 				<div class="form-group mb-3 mr-2">
 					<button type="reset" class="btn btn-secondary mr-2" onclick="document.getElementById('nowButton').classList.remove('active'); initFields(); updateSkyProj(); return false;">Reset</button>
 					<button type="submit" class="btn btn-primary" onclick="document.getElementById('nowButton').classList.remove('active'); updateSkyProj(); return false;">Redraw</button>
@@ -1356,9 +1364,10 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 					<h5>Illuminated by artificial light</h5>
 					<canvas id="canvas_amb" class="mb-2" width="300" height="300"></canvas>
 					<span id="loader_amb" class="spinner spinner-centered spinner-huge"><span class=""></span> <i class="fas fa-spinner fa-pulse"></i><span class=""></span></span>				</div>
-				<div class="col-auto d-none" id="fluxCol">
+				<div class="col-auto" id="fluxCol">
 					<h5>Light Curve</h5>
-					<canvas id="fluxChart" width="400" height="300"></canvas>
+					<svg id="fluxChart" width="400" height="300"></svg>
+				</div>
 				</div>
 			</div>
 
