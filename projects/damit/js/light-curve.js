@@ -401,6 +401,10 @@ function drawLightCurve(n = 100, s = [1, 0, 0], o = [0, 0, 1]) {
     .attr("d", line);
 }
 
+function drawAccurateLightCurve() {
+    
+}
+
 function saveLightCurveAsSvg() {
     const svg = document.getElementById('fluxChart');
     const serializer = new XMLSerializer();

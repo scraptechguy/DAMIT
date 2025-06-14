@@ -1020,9 +1020,8 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 					  	<svg id="fluxChart" width="400" height="300"></svg>
 					  	<figcaption id="fluxCaption" class="text-secondary font-weight-normal" style="padding-top: 0.5em; font-size: 0.8em; overflow-wrap: break-word; word-wrap: break-word; max-width: 400px; text-align: center;">
 							Computed without shadowing and for fixed positions of Earth and Sun. Click
-							<button type="button" style="background: none; border: none; padding: 0; font: inherit; color: blue; text-decoration: underline; cursor: pointer;" onclick="">
-							here
-							</button> 
+							<button id="drawAccurateLightCurve" type="button" class="btn btn-link p-0" style="border: none; padding: 0 ; font: inherit">here</button> 
+							<script>document.getElementById('drawAccurateLightCurve').addEventListener('click', drawAccurateLightCurve);</script>
 							to draw a more accurate light curve.
 						</figcaption>
 					</figure>
