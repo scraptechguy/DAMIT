@@ -824,7 +824,7 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 		}
 		*/
 		let url = "https://astro.troja.mff.cuni.cz/projects/damit/asteroids/ephems/" + AST_ID + "/" + jd;
-		let new_ephems = '{"hel":   {"x":  -0.1234, "y": 0.5678, "z": 0.9101 }, "geo": {"x": 1.2345, "y": -0.6789, "z": -0.0123 }}';
+		let new_ephems = '{"hel":   {"x":  1, "y": 0, "z": 0 }, "geo": {"x": 0, "y": 1, "z": 0 }}';
 		updateSkyProj.cache.set(url, new_ephems);
 		handleEphemsResponse(new_ephems);
 		loader_sun.style.display = "none";

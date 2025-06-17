@@ -2,6 +2,24 @@ function f_lambert(f_L, mu_i, mu_e, alpha) {
     return f_L;
 }
 
+function rotate_matrix_inv(rotations) {
+	//[rot_z, rot_y, rot_z, rot_x]
+	var model_m = Matrix.RotationX(rotations[3])
+		.multiply(Matrix.RotationZ(rotations[2]))
+		.multiply(Matrix.RotationY(rotations[1]))
+		.multiply(Matrix.RotationZ(rotations[0]));
+    model_m = model_m.inverse();
+
+	return model_m;
+};
+
+function rotate_vector_inv(vector, model_m) {
+    var new_vector = [];
+	new_vector = model_m.multiply($V(vector));
+
+    return new_vector.elements;
+}
+
 /**
  * Intersection of ray A + x·B with triangle t in 3D.
  *
@@ -168,10 +186,6 @@ function nu(faces, nodes, normals, centres, s, nu_i) {
  * @param {number[]} [o=[0,0,1]] – observer‐direction vector
  */
 function getCosinesAndFluxes(s = [1, 0, 0], o = [0, 0, 1], surfaces) {
-    // copy inputs
-    s = [s[0], s[1], s[2]];
-    o = [o[0], o[1], o[2]];
-
     // helper: dot product of two 3‐vectors
     // const dot = (u, v) => u[0]*v[0] + u[1]*v[1] + u[2]*v[2];
     // helper: dot product u ⋅ v
@@ -232,10 +246,25 @@ function getLightCurve(n = 100, s = [1, 0, 0], o = [0, 0, 1]) {
     var gammas = [];
     var fluxes = [];
     var sv = getSurfVol(vertexes, faces);
+    
+    // JD at Earth -- the time for which we want to draw the model.
+    var jd = Number(document.getElementById("jd").value);
+    // Retarded JD.
+    var jd_ast_ret = getRetardedJD(jd, o);
+    var epsilon = getEpsilon(jd); // in degrees
 
-    // initial light & view vectors
-    s = [s[0], s[1], s[2]];
-    o = [o[0], o[1], o[2]];
+    // rotate observer and sun vectors
+    var rotations = [
+        (phi0 + (jd_ast_ret - jd0) / period * 24 * 360) * DEG_TO_RAD,
+        (90. - beta) * DEG_TO_RAD,
+        lambda * DEG_TO_RAD,
+        epsilon * DEG_TO_RAD
+    ];
+    var model_m = rotate_matrix_inv(rotations);
+    s = rotate_vector_inv(s, model_m);
+    o = rotate_vector_inv(o, model_m);
+    console.log(s)
+    console.log(o)
 
     for (let i = 0; i <= n; i++) {
         // evenly sample gamma from 0 to 2π
