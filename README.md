@@ -14,12 +14,7 @@ DAMIT contains asteroid models that were derived using the light-curve inversion
 #### Integrated D3‐powered plotting
 + Built `drawLightCurve()` to render the phase–flux curve as an SVG line chart, complete with dynamic axes, padding, and responsive sizing alongside the existing asteroid projections.
 
-+ Enhanced the UI with controls to scale the chart and to download light curve data as a two‐column TXT file or an SVG.
-
-#### User‐friendly features
-+ Added captions, custom styling, and in‐HTML text wrapping under the SVG.
-
-+ Created download buttons styled as links for seamless integration.
++ Enhanced the UI with controls to scale the chart and to download light curve data as a two‐column TXT file or an SVG file.
 
 <a href="https://astro.troja.mff.cuni.cz/projects/damit/">
 <img src="https://github.com/user-attachments/assets/409c7306-51d5-472a-b39a-e8345e6e9fb9">
