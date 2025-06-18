@@ -1019,11 +1019,22 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 						<h5>Light Curve</h5>
 					  	<svg id="fluxChart" width="400" height="300"></svg>
 					  	<figcaption id="fluxCaption" class="text-secondary font-weight-normal" style="padding-top: 0.5em; font-size: 0.8em; overflow-wrap: break-word; word-wrap: break-word; max-width: 400px; text-align: center;">
-							Computed for fixed positions of Earth and Sun and without shadowing. Click
-							<button id="drawAccurateLightCurve" type="button" class="btn btn-link p-0" style="border: none; padding: 0 ; font: inherit">here</button> 
-							<script>document.getElementById('drawAccurateLightCurve').addEventListener('click', drawAccurateLightCurve);</script>
-							to draw a more accurate light curve.
+							Computed for fixed positions of Earth and Sun and without shadowing.
 						</figcaption>
+						<ul class="list-inline" style="text-align: center;">
+							<li class="list-inline-item">
+								<button id="saveLightCurveAsTxt" type="button" class="btn btn-link p-0">light_curve.txt</button>
+								<script>
+									document.getElementById('saveLightCurveAsTxt').addEventListener('click', saveLightCurveAsTxt);
+								</script>
+							</li>
+							<li class="list-inline-item">
+								<button id="downloadGraph" type="button" class="btn btn-link p-0">light_curve.svg</button>
+								<script>
+									document.getElementById('downloadGraph').addEventListener('click', saveLightCurveAsSvg);
+								</script>					
+							</li>
+						</ul>
 					</figure>
 				  </div>
 			</div>
@@ -1133,16 +1144,6 @@ var faces = [[0, 1, 2], [0, 2, 3], [0, 3, 4], [5, 4, 3], [5, 3, 6], [5, 6, 7], [
 						<a href="generated_files/open/AsteroidModel/103/spin.txt">spin.txt</a>					</li>
 									<li class="list-inline-item">
 						<a href="generated_files/open/AsteroidModel/103/shape.obj">shape.obj</a>					</li>
-									<li class="list-inline-item">
-						<button id="saveLightCurveAsTxt" type="button" class="btn btn-link p-0">light_curve.txt</button>
-						<script>
-							document.getElementById('saveLightCurveAsTxt').addEventListener('click', saveLightCurveAsTxt);
-						</script>					</li>
-									<li class="list-inline-item">
-						<button id="downloadGraph" type="button" class="btn btn-link p-0">light_curve.svg</button>
-						<script>
-							document.getElementById('downloadGraph').addEventListener('click', saveLightCurveAsSvg);
-						</script>					</li>
 							</ul>
 		
 	</div>
