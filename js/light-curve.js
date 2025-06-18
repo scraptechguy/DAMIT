@@ -289,18 +289,15 @@ function getLightCurve(n = 100, s = [1, 0, 0], o = [0, 0, 1]) {
         fluxes.push(flux);
     }
 
-    // now normalize columns just like before
-    const min0 = Math.min(...gammas), max0 = Math.max(...gammas);
-    const min1 = Math.min(...fluxes), max1 = Math.max(...fluxes);
-    const range0 = max0 - min0, range1 = max1 - min1;
+    // compute mins and maxs
+    const minG = d3.min(gammas), maxG = d3.max(gammas);
+    const meanF = d3.sum(fluxes) / fluxes.length;
 
-    gammas.forEach(r => {
-        r = (r - min0) / range0;
-    });
-    fluxes.forEach(r => {
-        r = -(r - min1) / range1;
-
-    });
+    // normalize into the desired ranges
+    //    phase: [0…1]  => (g - minG)/(maxG - minG)
+    //    flux:  [0…2]  => (f - minF)/(maxF - minF) * 2
+    gammas = gammas.map(g => (g - minG) / (maxG - minG));
+    fluxes = fluxes.map(f => (f / meanF));
 
     console.log(gammas);
     console.log(fluxes);
@@ -313,18 +310,8 @@ function drawLightCurve(n = 100, s = [1, 0, 0], o = [0, 0, 1]) {
     o = [o[0], o[1], o[2]];
 
     const curveData = getLightCurve(n, s, o);
-    const rawGammas = curveData[0];
-    const rawFluxes = curveData[1];
-
-    // compute mins and maxs
-    const minG = d3.min(rawGammas), maxG = d3.max(rawGammas);
-    const meanF = d3.sum(rawFluxes) / rawFluxes.length;
-
-    // normalize into the desired ranges
-    //    phase: [0…1]  => (g - minG)/(maxG - minG)
-    //    flux:  [0…2]  => (f - minF)/(maxF - minF) * 2
-    const gammas = rawGammas.map(g => (g - minG) / (maxG - minG));
-    const fluxes = rawFluxes.map(f => (f / meanF));
+    const gammas = curveData[0];
+    const fluxes = curveData[1];
 
     // zip into objects
     const data = gammas.map((g, i) => ({ phase: g, flux: fluxes[i] }));
